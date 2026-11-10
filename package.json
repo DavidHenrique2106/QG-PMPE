@@ -1,0 +1,16 @@
+{
+  "name": "qg-pmpe",
+  "version": "2.0.0",
+  "private": true,
+  "description": "QG de Estudos PMPE: plano de estudos para Soldado PM-PE, com sincronização entre celular e computador.",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

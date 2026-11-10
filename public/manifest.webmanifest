@@ -1,0 +1,15 @@
+{
+  "name": "QG de Estudos PMPE",
+  "short_name": "QG PMPE",
+  "description": "Plano de estudos para Soldado PM-PE.",
+  "lang": "pt-BR",
+  "start_url": "/#hoje",
+  "display": "standalone",
+  "background_color": "#eef1f6",
+  "theme_color": "#1c2f57",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>QG de Estudos PMPE</title>
+<meta name="description" content="Plano de estudos para Soldado PM-PE: grade semanal, cronograma, edital, questões, simulados e PDFs.">
+<meta name="theme-color" content="#1c2f57">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QG PMPE">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="star" aria-hidden="true">★</span><h1>QG de Estudos PMPE</h1><small>Soldado · método de blocos</small></div>
+    <div class="countdown" id="countdown"></div>
+    <span class="saved" id="saved" aria-live="polite" hidden></span>
+  </div>
+</header>
+<nav class="tabs" aria-label="Seções">
+  <div class="wrap" id="tabs">
+    <a href="#hoje">Hoje</a><a href="#grade">Grade semanal</a><a href="#cronograma">Cronograma</a><a href="#edital">Edital</a><a href="#questoes">Questões</a><a href="#simulados">Simulados</a><a href="#pdfs">PDFs</a><a href="#ajustes">Ajustes</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- HOJE -->
+  <section class="view" id="v-hoje">
+    <div class="spread"><div><h2 id="hoje-titulo">Hoje</h2><p class="lede" id="hoje-sub"></p></div></div>
+    <div id="hoje-backup"></div>
+    <div class="grid2">
+      <div class="panel" style="display:grid;gap:12px">
+        <div class="spread"><h3>Blocos do dia</h3><span class="small muted num" id="hoje-count"></span></div>
+        <div class="blocks" id="hoje-blocks"></div>
+      </div>
+      <div style="display:grid;gap:20px;align-content:start">
+        <div class="panel timer">
+          <div class="eyebrow">Cronômetro do bloco</div>
+          <div class="phase" id="t-phase">Foco</div>
+          <div class="clock num" id="t-clock">50:00</div>
+          <div class="small muted" id="t-what">Escolha um bloco e comece</div>
+          <div class="row" style="justify-content:center">
+            <button class="primary" id="t-start">Iniciar</button>
+            <button id="t-reset">Zerar</button>
+            <button class="ghost" id="t-skip">Pular fase</button>
+          </div>
+        </div>
+        <div class="panel" style="display:grid;gap:10px">
+          <div class="spread"><h3>Revisões pendentes</h3><span class="small muted">24h · 7 dias · 30 dias</span></div>
+          <div class="revs" id="hoje-revs"></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="panel" style="display:grid;gap:12px">
+        <h3>Edital coberto</h3>
+        <div class="subj-prog" id="hoje-prog"></div>
+      </div>
+      <div class="panel" style="display:grid;gap:8px;align-content:start">
+        <h3>Semana atual</h3>
+        <div id="hoje-semana"></div>
+      </div>
+      <div class="panel" style="display:grid;gap:8px;align-content:start">
+        <h3>Último simulado</h3>
+        <div id="hoje-sim"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRADE -->
+  <section class="view" id="v-grade" hidden>
+    <div><h2>Grade semanal de blocos</h2><p class="lede">Cada bloco tem 50 minutos de foco e 10 de pausa. Troque a matéria ou o tipo de qualquer bloco; a mudança vale para todas as semanas.</p></div>
+    <div class="panel method">
+      <div><b>Teoria</b><span class="small muted">Leitura do PDF ou videoaula, com anotações curtas no painel ao lado do PDF.</span></div>
+      <div><b>Questões</b><span class="small muted">Mínimo de 20 questões por bloco. Anote os erros.</span></div>
+      <div><b>Revisão</b><span class="small muted">Releia anotações e refaça erros dos assuntos que vencem hoje.</span></div>
+      <div><b>Redação</b><span class="small muted">Um texto completo em 60 minutos, depois a correção.</span></div>
+      <div><b>Simulado</b><span class="small muted">Prova completa, cronometrada, sem consulta.</span></div>
+    </div>
+    <div class="panel">
+      <div class="spread" style="margin-bottom:10px"><div class="legend" id="legend"></div><div class="row"><button id="g-add">+ Bloco por dia</button><button id="g-rem">− Bloco por dia</button><button class="ghost" id="g-reset">Restaurar grade padrão</button></div></div>
+      <div id="g-confirm"></div>
+      <div class="week-scroll"><table class="week" id="grade-table"></table></div>
+      <p class="small muted" id="grade-total" style="margin:10px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- CRONOGRAMA -->
+  <section class="view" id="v-cronograma" hidden>
+    <div><h2>Cronograma de 12 semanas</h2><p class="lede">Três fases até a prova. Cada semana lista os assuntos do edital a estudar e marca os sábados de simulado. Marcar um assunto aqui também o marca no edital e agenda as revisões.</p></div>
+    <div class="phases" id="phases"></div>
+    <div class="weeks" id="weeks"></div>
+  </section>
+
+  <!-- EDITAL -->
+  <section class="view" id="v-edital" hidden>
+    <div class="spread"><div><h2>Edital verticalizado</h2><p class="lede">Marque o assunto quando terminar a teoria. As revisões são agendadas para 1, 7 e 30 dias depois. Confira a lista com o edital oficial publicado e ajuste em Ajustes, se precisar.</p></div></div>
+    <div class="subjects" id="subjects"></div>
+  </section>
+
+  <!-- QUESTÕES -->
+  <section class="view" id="v-questoes" hidden>
+    <div class="spread"><div><h2>Questões</h2><p class="lede">Resolva questões filtrando por matéria, assunto, banca e modelo (A a E ou certo/errado), gere simulados com tempo e acompanhe onde você mais erra.</p></div><span class="small muted num" id="q-resumo"></span></div>
+    <div id="q-root" style="display:grid;gap:16px"></div>
+  </section>
+
+  <!-- SIMULADOS -->
+  <section class="view" id="v-simulados" hidden>
+    <div><h2>Simulados</h2><p class="lede">Registre acertos por matéria. A evolução mostra o aproveitamento total de cada simulado; as barras mostram a média por matéria nos últimos três.</p></div>
+    <div class="panel" style="display:grid;gap:12px">
+      <h3>Registrar simulado</h3>
+      <form id="sim-form" style="display:grid;gap:12px">
+        <div class="row">
+          <label class="f">Data<input type="date" id="sim-data" required></label>
+          <label class="f" style="flex:1;min-width:200px">Nome ou banca<input type="text" id="sim-nome" placeholder="Ex.: Simulado 2 — questões estilo banca"></label>
+          <label class="f">Nota da redação (0–10)<input type="number" id="sim-redacao" min="0" max="10" step="0.1" style="width:110px"></label>
+        </div>
+        <div class="sim-form" id="sim-fields"></div>
+        <div><button class="primary" type="submit">Salvar simulado</button></div>
+      </form>
+    </div>
+    <div class="grid2">
+      <div class="panel" style="display:grid;gap:10px"><h3>Evolução do aproveitamento</h3><div class="chart" id="sim-chart"></div></div>
+      <div class="panel" style="display:grid;gap:10px"><h3>Média por matéria</h3><div class="hbars" id="sim-bars"></div></div>
+    </div>
+    <div class="panel" style="display:grid;gap:10px"><h3>Histórico</h3><div class="tablewrap" id="sim-table"></div></div>
+  </section>
+
+  <!-- PDFS -->
+  <section class="view" id="v-pdfs" hidden>
+    <div><h2>Biblioteca de PDFs</h2><p class="lede">Suas apostilas, leis e provas anteriores. Cada PDF abre em tela cheia, volta na página onde você parou e guarda suas anotações.</p></div>
+    <div class="drop" id="drop">
+      <div class="drop-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+      <div style="flex:1;min-width:200px"><strong>Anexar PDFs</strong><div class="small muted">Arraste para cá ou escolha no computador. Até 20 MB por arquivo.</div><div class="status" id="pdf-status"></div></div>
+      <label class="f">Matéria<select id="pdf-materia"></select></label>
+      <input type="file" id="pdf-input" accept="application/pdf" multiple class="sr">
+      <label class="btn primary" for="pdf-input">Escolher arquivos</label>
+    </div>
+    <div id="pdf-continue"></div>
+    <div class="filters" id="pdf-filters" role="group" aria-label="Filtrar por matéria"></div>
+    <div class="lib-grid" id="pdf-list"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="view" id="v-ajustes" hidden>
+    <div><h2>Ajustes</h2><p class="lede">Datas do plano e duração dos blocos.</p></div>
+    <div class="panel" style="display:grid;gap:14px;max-width:640px">
+      <div class="row">
+        <label class="f">Início do cronograma (segunda-feira)<input type="date" id="a-inicio"></label>
+        <label class="f">Data da prova<input type="date" id="a-prova"></label>
+      </div>
+      <div class="row">
+        <label class="f">Foco (min)<input type="number" id="a-foco" min="10" max="120" style="width:100px"></label>
+        <label class="f">Pausa (min)<input type="number" id="a-pausa" min="1" max="60" style="width:100px"></label>
+      </div>
+      <div><button class="primary" id="a-save">Salvar ajustes</button></div>
+      <p class="small muted" id="a-sync"></p>
+    </div>
+    <div class="panel" style="display:grid;gap:12px;max-width:640px">
+      <h3>Nuvem</h3>
+      <p class="small" style="margin:0" id="sync-status"></p>
+      <div class="row" id="sync-entrar">
+        <label class="f" style="flex:1;min-width:200px">Senha do QG<input type="password" id="sync-senha" autocomplete="current-password"></label>
+        <button class="primary" id="sync-ok">Conectar</button>
+        <span class="small muted" id="sync-msg" aria-live="polite"></span>
+      </div>
+      <div><button class="ghost" id="sync-sair" hidden>Desconectar este aparelho</button></div>
+    </div>
+    <div class="panel" style="display:grid;gap:14px;max-width:640px">
+      <h3>Seus dados e backup</h3>
+      <p class="small" style="margin:0">Tudo é salvo automaticamente enquanto você usa: blocos feitos, grade, edital, revisões, questões e respostas, simulados, ajustes, cronômetro, PDFs, página onde parou e anotações.</p>
+      <p class="small muted" style="margin:0" id="d-info"></p>
+      <div class="row">
+        <button class="primary" id="d-export">Baixar backup</button>
+        <label class="row small" style="gap:6px"><input type="checkbox" id="d-pdfs"> Incluir os PDFs (arquivo fica maior)</label>
+      </div>
+      <div class="row">
+        <input type="file" id="d-import" accept="application/json,.json" class="sr">
+        <label class="btn" for="d-import">Restaurar de um backup</label>
+        <span class="small muted" id="d-last"></span>
+      </div>
+      <div id="d-confirm"></div>
+    </div>
+  </section>
+</main>
+<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Leitor de PDF">
+  <div class="rbar">
+    <div class="grp">
+      <button class="ib" id="r-close" title="Voltar à biblioteca (Esc)" aria-label="Voltar à biblioteca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></button>
+      <button class="ib" id="r-thumbs" aria-pressed="false" title="Barra lateral: PDFs e páginas" aria-label="Barra lateral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+    </div>
+    <div class="rtitle" id="r-name"></div>
+    <div class="grp rpg">
+      <button class="ib" id="r-prev" aria-label="Página anterior" title="Página anterior (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <input id="r-page" type="number" min="1" value="1" inputmode="numeric" aria-label="Ir para a página">
+      <span>&nbsp;/ <span id="r-total">–</span></span>
+      <button class="ib" id="r-next" aria-label="Próxima página" title="Próxima página (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="grp">
+      <button class="ib hide-sm" id="r-zout" aria-label="Diminuir zoom" title="Diminuir zoom (−)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+      <button class="zl hide-sm" id="r-zoom" title="Voltar ao tamanho da tela">100%</button>
+      <button class="ib hide-sm" id="r-zin" aria-label="Aumentar zoom" title="Aumentar zoom (+)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+      <select class="rsel hide-sm" id="r-fitsel" aria-label="Tamanho da página"><option value="auto">Tamanho normal</option><option value="width">Largura da tela</option><option value="page">Página inteira</option></select>
+      <button class="ib" id="r-notes" aria-pressed="false" title="Anotações" aria-label="Anotações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      <button class="ib hide-sm" id="r-fs" title="Tela cheia" aria-label="Tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+    </div>
+    <div class="rprog"><i id="r-prog"></i></div>
+  </div>
+  <div class="rbody">
+    <aside class="side" id="r-side" hidden aria-label="Navegação">
+      <div class="stabs" role="tablist"><button role="tab" id="st-lib" aria-selected="true">PDFs</button><button role="tab" id="st-pg" aria-selected="false">Páginas</button></div>
+      <div class="slist" id="r-lib"></div>
+      <div class="thumbs" id="r-thumbbox" hidden></div>
+    </aside>
+    <div class="pages" id="r-pages" tabindex="-1"></div>
+    <aside class="npanel" id="r-npanel" hidden aria-label="Anotações">
+      <div class="spread"><h3>Anotações</h3><span class="status" id="n-status"></span></div>
+      <textarea id="v-notes" placeholder="Resumo, palavras-chave, artigos de lei, dúvidas…"></textarea>
+      <div style="display:grid;gap:8px">
+        <button id="v-mark">Marcar lido até a página atual</button>
+        <span class="small muted" id="v-lida"></span>
+        <div id="v-confirm"></div>
+        <button class="ghost danger" id="v-del">Remover este PDF</button>
+      </div>
+    </aside>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="login" id="login" hidden role="dialog" aria-modal="true" aria-labelledby="login-t">
+  <div class="panel">
+    <h3 id="login-t">Conectar à nuvem</h3>
+    <p class="small" style="margin:0">Com a senha, seu progresso, PDFs e anotações aparecem no celular e no computador.</p>
+    <label class="f">Senha do QG<input type="password" id="login-senha" autocomplete="current-password"></label>
+    <span class="small muted" id="login-msg" aria-live="polite"></span>
+    <div class="row"><button class="primary" id="login-ok">Conectar</button><button class="ghost" id="login-depois">Agora não</button></div>
+  </div>
+</div>
+
+
+<script src="vendor/pdf.min.js"></script>
+<script src="data/questoes-oficiais.js"></script>
+<script src="js/nuvem.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
