@@ -5,7 +5,7 @@ export async function GET(request) {
   const info = {
     senha: senhaConfigurada(),
     banco: redisConfigurado(),
-    arquivos: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    arquivos: Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID),
   };
   if (request.headers.get("x-qg-senha") != null) {
     if (!autorizado(request)) return negar();

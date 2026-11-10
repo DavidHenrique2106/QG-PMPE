@@ -7,9 +7,9 @@
 // GET    /api/pdf?id=X&parte=N   -> bytes da parte N
 // DELETE /api/pdf?id=X           -> apaga o arquivo
 //
-// Os endereços no Blob têm sufixo aleatório e nunca saem do servidor:
+// O store do Blob é privado: os arquivos não têm endereço público e
 // o navegador só acessa os bytes passando por esta rota, com a senha.
-import { put, del } from "@vercel/blob";
+import { put, del, get } from "@vercel/blob";
 import { json, erro, autorizado, negar, redis, K, idValido } from "./_lib.js";
 
 const MAX_PARTE = 3.5 * 1024 * 1024;
@@ -34,9 +34,9 @@ export async function GET(request) {
   if (parte == null) return json({ partes: m.partes.length, tamanho: m.tamanho, tipo: m.tipo });
   const url = m.partes[Number(parte)];
   if (!url) return erro(404, "parte", "Parte não encontrada.");
-  const r = await fetch(url);
-  if (!r.ok) return erro(502, "blob", "Falha ao ler o arquivo.");
-  return new Response(r.body, {
+  const r = await get(url, { access: "private" });
+  if (!r) return erro(502, "blob", "Falha ao ler o arquivo.");
+  return new Response(r.stream, {
     headers: { "content-type": "application/octet-stream", "cache-control": "private, max-age=31536000, immutable" },
   });
 }
@@ -65,7 +65,7 @@ export async function POST(request) {
   const bytes = await request.arrayBuffer();
   if (bytes.byteLength > MAX_PARTE) return erro(413, "too_large", "Parte grande demais.");
   const blob = await put(`pdfs/${id}/${i}.bin`, bytes, {
-    access: "public",
+    access: "private",
     addRandomSuffix: true,
     contentType: "application/octet-stream",
   });
