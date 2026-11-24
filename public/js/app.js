@@ -14,12 +14,14 @@ const MATBY = Object.fromEntries(MAT.map(m=>[m.id,m]));
 const TIPOS = {T:"Teoria",Q:"Questões",R:"Revisão",RD:"Redação",S:"Simulado",F:"Folga"};
 const DIAS = ["seg","ter","qua","qui","sex","sab","dom"];
 const DIAS_N = {seg:"Segunda",ter:"Terça",qua:"Quarta",qui:"Quinta",sex:"Sexta",sab:"Sábado",dom:"Domingo"};
+/* No máximo 1 bloco de Português por dia; cada dia útil tem 4 matérias diferentes.
+   Por semana: Português 4, RLM 4, Informática 3, Constitucional 3, DH 3, História 2, Redação 2. */
 const GRADE_PADRAO = {
- seg:[["port","T"],["port","Q"],["const","T"],["info","T"]],
- ter:[["mat","T"],["mat","Q"],["hist","T"],["dh","T"]],
- qua:[["port","T"],["port","Q"],["const","Q"],["red","RD"]],
- qui:[["mat","T"],["mat","Q"],["info","Q"],["hist","Q"]],
- sex:[["port","Q"],["dh","Q"],["const","Q"],["mix","R"]],
+ seg:[["port","T"],["mat","T"],["const","T"],["info","T"]],
+ ter:[["dh","T"],["hist","T"],["mat","Q"],["info","Q"]],
+ qua:[["port","Q"],["const","Q"],["dh","Q"],["red","RD"]],
+ qui:[["port","T"],["mat","T"],["info","T"],["hist","Q"]],
+ sex:[["port","Q"],["mat","Q"],["dh","Q"],["const","Q"]],
  sab:[["mix","S"],["mix","S"],["mix","R"],["red","RD"]],
  dom:[["mix","R"],["mix","R"],["mix","F"],["mix","F"]]
 };
