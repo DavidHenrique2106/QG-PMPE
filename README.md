@@ -1,6 +1,6 @@
 # QG de Estudos PMPE
 
-Plano de estudos para o concurso de **Soldado da PM-PE (2026)**: grade semanal por blocos, cronograma de 12 semanas, edital com revisões espaçadas, banco de questões (incluindo provas oficiais anteriores), simulados, biblioteca de PDFs com anotações e cronômetro.
+Plano de estudos para o concurso de **Soldado da PM-PE (2026)**: grade semanal por blocos, trilha de assuntos na ordem de prioridade, cronograma de 12 semanas, edital com revisões espaçadas, banco de questões (incluindo provas oficiais anteriores), simulados, biblioteca de PDFs com anotações e cronômetro.
 
 Funciona no computador e no celular, com os mesmos dados nos dois.
 
@@ -23,6 +23,7 @@ public/                  site estático (o que a Vercel serve)
   js/app.js              lógica do app: telas, cronograma, questões, simulados, leitor de PDF, backup
   js/nuvem.js            sincronização com a API (estado, anotações e PDFs)
   data/questoes-oficiais.js  questões de provas anteriores com gabarito oficial
+  data/trilha.js         trilha de estudo (assuntos URGENTE e MÉDIO do PDF de análise, em ordem)
   vendor/                pdf.js 3.11
   icons/, manifest.webmanifest  ícone e instalação na tela inicial do celular
 api/                     funções da Vercel (Node)
@@ -32,6 +33,7 @@ api/                     funções da Vercel (Node)
   notas.js               GET/PUT/DELETE /api/notas  anotações dos PDFs
   pdf.js                 GET/POST/DELETE /api/pdf   PDFs em partes de 3,5 MB
 analise/                 planilhas de análise das provas e prioridades
+scripts/gera_trilha.py   gera public/data/trilha.js a partir da planilha de análise
 ```
 
 ## Serviços usados
@@ -54,3 +56,7 @@ vercel dev
 ## Trocar a senha
 
 Na Vercel: Settings → Environment Variables → `QG_SENHA`, depois faça um novo deploy. Cada aparelho vai pedir a senha nova em Ajustes → Nuvem.
+
+## Trilha de estudo
+
+A aba **Trilha** e os blocos do dia seguem os assuntos URGENTE e depois MÉDIO da aba "O que focar" da planilha de análise. Se mudar a planilha, rode `python3 scripts/gera_trilha.py` e publique de novo.

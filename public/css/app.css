@@ -317,3 +317,20 @@ button.flagged{border-color:var(--sol);background:var(--sol-soft)}
 #sync-status .dot{display:inline-block;margin-right:6px;vertical-align:1px}
 .login{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(10,18,36,.55)}
 .login .panel{display:grid;gap:12px;width:100%;max-width:380px}
+
+/* Trilha */
+.ptag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:4px;vertical-align:1px}
+.ptag.U{background:#f8b4ac;color:#6b0f07}
+.ptag.M{background:#fff15a;color:#5c4a00}
+.ptag.ok{background:var(--good-soft);color:var(--good)}
+.bassunto{margin-top:6px;font-size:13px;line-height:1.45;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+button.link{background:none;border:0;padding:0;color:var(--good);font:inherit;font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer}
+.tri{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 0 10px 10px;border-bottom:1px solid var(--line);border-left:4px solid var(--c)}
+.tri:last-child{border-bottom:0}
+.tri input{margin-top:3px;width:18px;height:18px;accent-color:var(--good)}
+.tri-t{font-weight:600}
+.tri.ok .tri-t{text-decoration:line-through;opacity:.6}
+.tri.cur{background:var(--sunk);border-radius:0 6px 6px 0}
+.tri details{margin-top:4px}
+.tri summary{font-size:12px;color:var(--ink-3);cursor:pointer}
+.aqui{font-size:11px;font-weight:700;color:var(--good);white-space:nowrap}

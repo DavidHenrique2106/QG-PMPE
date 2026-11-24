@@ -14,14 +14,14 @@ const MATBY = Object.fromEntries(MAT.map(m=>[m.id,m]));
 const TIPOS = {T:"Teoria",Q:"Questões",R:"Revisão",RD:"Redação",S:"Simulado",F:"Folga"};
 const DIAS = ["seg","ter","qua","qui","sex","sab","dom"];
 const DIAS_N = {seg:"Segunda",ter:"Terça",qua:"Quarta",qui:"Quinta",sex:"Sexta",sab:"Sábado",dom:"Domingo"};
-/* No máximo 1 bloco de Português por dia; cada dia útil tem 4 matérias diferentes.
+/* Segunda é o dia de Português: os 4 blocos só dele. Nos outros dias úteis não tem Português.
    Por semana: Português 4, RLM 4, Informática 3, Constitucional 3, DH 3, História 2, Redação 2. */
 const GRADE_PADRAO = {
- seg:[["port","T"],["mat","T"],["const","T"],["info","T"]],
- ter:[["dh","T"],["hist","T"],["mat","Q"],["info","Q"]],
- qua:[["port","Q"],["const","Q"],["dh","Q"],["red","RD"]],
- qui:[["port","T"],["mat","T"],["info","T"],["hist","Q"]],
- sex:[["port","Q"],["mat","Q"],["dh","Q"],["const","Q"]],
+ seg:[["port","T"],["port","Q"],["port","T"],["port","Q"]],
+ ter:[["mat","T"],["const","T"],["info","T"],["hist","T"]],
+ qua:[["dh","T"],["mat","Q"],["info","Q"],["red","RD"]],
+ qui:[["mat","T"],["const","Q"],["dh","Q"],["hist","Q"]],
+ sex:[["mat","Q"],["info","Q"],["dh","Q"],["const","Q"]],
  sab:[["mix","S"],["mix","S"],["mix","R"],["red","RD"]],
  dom:[["mix","R"],["mix","R"],["mix","F"],["mix","F"]]
 };
@@ -51,7 +51,7 @@ const topicId = (m,i)=>m+"-"+i;
 
 /* ---------- Estado e armazenamento ---------- */
 const DEF = {
- config:{inicio:iso(nextMonday()), prova:iso(addDays(nextMonday(),84)), foco:50, pausa:10},
+ config:{inicio:iso(nextMonday()), prova:"2027-02-21", foco:50, pausa:10},
  grade:{dias:JSON.parse(JSON.stringify(GRADE_PADRAO))},
  feitos:{m:{}},
  topicos:{m:{}},
@@ -87,6 +87,8 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden)flushAll()}
 window.addEventListener("pagehide",flushAll);
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persisted().then(ok=>{if(!ok)navigator.storage.persist()})}catch(e){}
 for(const k of Object.keys(DEF)){const v=lsGet(k);if(v)S[k]=Object.assign(JSON.parse(JSON.stringify(DEF[k])),v)}
+/* Grava as datas na primeira abertura, para o início do plano não mudar toda semana */
+if(!lsGet("config"))lsSet("config",S.config);
 /* Matemática virou Raciocínio Lógico: remapeia o progresso dos assuntos antigos pelo nome */
 (function(){if(S.topicos.rlm)return;
   const OLD=["Conjuntos e operações","Números racionais, frações e decimais","Razão e proporção","Regra de três simples e composta","Porcentagem","Juros simples e compostos","Equações e sistemas do 1º e 2º grau","Funções do 1º e 2º grau","Geometria plana: áreas e perímetros","Proposições e conectivos lógicos","Tabela-verdade, equivalências e negações","Sequências lógicas e problemas","Análise combinatória e probabilidade"];
@@ -103,7 +105,7 @@ async function idbGet(id){const d=await idb();return new Promise((res,rej)=>{con
 async function idbDel(id){const d=await idb();return new Promise(res=>{const t=d.transaction("pdf","readwrite");t.objectStore("pdf").delete(id);t.oncomplete=res;t.onerror=res})}
 
 /* ---------- Navegação ---------- */
-const VIEWS=["hoje","grade","cronograma","edital","questoes","simulados","pdfs","ajustes"];
+const VIEWS=["hoje","trilha","grade","cronograma","edital","questoes","simulados","pdfs","ajustes"];
 function route(){
   const h=(location.hash||"#hoje").slice(1);const v=VIEWS.includes(h)?h:"hoje";
   VIEWS.forEach(x=>$("#v-"+x).hidden=x!==v);
@@ -114,7 +116,7 @@ window.addEventListener("hashchange",route);
 function renderAll(){renderCountdown();const h=(location.hash||"#hoje").slice(1);render(VIEWS.includes(h)?h:"hoje")}
 function render(v){
   renderCountdown();
-  ({hoje:rHoje,grade:rGrade,cronograma:rCrono,edital:rEdital,questoes:rQuest,simulados:rSim,pdfs:rPdfs,ajustes:rAjustes})[v]();
+  ({hoje:rHoje,trilha:rTrilha,grade:rGrade,cronograma:rCrono,edital:rEdital,questoes:rQuest,simulados:rSim,pdfs:rPdfs,ajustes:rAjustes})[v]();
 }
 
 /* ---------- Cálculos ---------- */
@@ -170,9 +172,12 @@ function rHoje(){
     if(tp==="S") titulo="Simulado completo";
     if(tp==="R"&&mid==="mix") titulo="Revisão da semana";
     const done=feitos.includes(i);
+    const at=trilhaAtual(mid);
+    const ass=at?`<div class="bassunto"><span class="ptag ${at.p}">${at.p==="U"?"URGENTE":"MÉDIO"}</span> ${esc(at.a)}<button class="link" data-tc="${at.id}">Concluí este assunto</button></div>`
+      :(mid in TRILHA_MATS?`<div class="bassunto"><span class="ptag ok">Trilha concluída</span> Use o bloco para revisar e fazer questões.</div>`:"");
     html+=`<div class="block${done?" done":""}" style="--c:${colorOf(mid)}">
       <input type="checkbox" class="check" data-b="${i}" ${done?"checked":""} aria-label="Concluir bloco ${i+1}">
-      <div style="min-width:0"><div class="bt">${esc(titulo)}</div><div class="bs">Bloco ${i+1} · ${TIPOS[tipo]} · ${S.config.foco} min</div></div>
+      <div style="min-width:0"><div class="bt">${esc(titulo)}</div><div class="bs">Bloco ${i+1} · ${TIPOS[tipo]} · ${S.config.foco} min</div>${ass}</div>
       <button class="ghost" data-tb="${i}" data-label="${esc(titulo+" · "+TIPOS[tipo])}">Cronometrar</button></div>`;
   });
   $("#hoje-blocks").innerHTML=html||`<div class="empty">Dia de folga na grade. Descanse ou faça uma revisão leve.</div>`;
@@ -183,6 +188,7 @@ function rHoje(){
     arr=cb.checked?[...new Set([...arr,i])]:arr.filter(x=>x!==i);
     S.feitos.m[key]=arr; save("feitos"); rHoje();
   });
+  $("#hoje-blocks").querySelectorAll("button[data-tc]").forEach(b=>b.onclick=()=>concluirTrilha(b.dataset.tc,rHoje));
   $("#hoje-blocks").querySelectorAll("button[data-tb]").forEach(b=>b.onclick=()=>{timerBlock={key,i:+b.dataset.tb};$("#t-what").textContent=b.dataset.label;resetTimer();startTimer()});
 
   const revs=revisoesDevidas();
@@ -286,6 +292,37 @@ function bindTopicChecks(root,rerender){
 }
 
 /* ---------- Edital ---------- */
+/* ---------- Trilha (assuntos URGENTE e MÉDIO do PDF de análise, em ordem) ---------- */
+const TRILHA=window.QG_TRILHA||[];
+const TRILHA_MATS=Object.fromEntries(TRILHA.map(t=>[t.m,1]));
+const trilhaFeito=id=>Boolean(S.topicos.trilha&&S.topicos.trilha[id]);
+function trilhaAtual(mid){return TRILHA.find(t=>t.m===mid&&!trilhaFeito(t.id))||null}
+function marcarTrilha(id,sim){
+  const tr=Object.assign({},S.topicos.trilha||{});
+  if(sim)tr[id]=iso(today());else delete tr[id];
+  S.topicos.trilha=tr;save("topicos");
+}
+function concluirTrilha(id,depois){
+  const t=TRILHA.find(x=>x.id===id);if(!t)return;
+  marcarTrilha(id,true);
+  const prox=trilhaAtual(t.m);
+  toast(prox?`Próximo de ${nomeOf(t.m)}: ${prox.a}`:`Trilha de ${nomeOf(t.m)} concluída!`);
+  depois&&depois();
+}
+function rTrilha(){
+  const feitos=TRILHA.filter(t=>trilhaFeito(t.id)).length;
+  $("#tr-prog").innerHTML=`<div class="spread"><span>${feitos} de ${TRILHA.length} assuntos concluídos</span><span class="num muted">${TRILHA.length?Math.round(feitos/TRILHA.length*100):0}%</span></div><div class="bar" style="--c:var(--good)"><i style="width:${TRILHA.length?feitos/TRILHA.length*100:0}%"></i></div>`;
+  const atuais=new Set(Object.keys(TRILHA_MATS).map(m=>trilhaAtual(m)?.id).filter(Boolean));
+  const grupo=(p,nome,txt)=>{const its=TRILHA.filter(t=>t.p===p);const f=its.filter(t=>trilhaFeito(t.id)).length;
+    return `<div class="panel" style="display:grid;gap:4px"><div class="spread"><h3><span class="ptag ${p}">${nome}</span></h3><span class="num small muted">${f}/${its.length}</span></div><p class="small muted" style="margin:0 0 6px">${txt}</p>${its.map(t=>{const ok=trilhaFeito(t.id),cur=atuais.has(t.id);
+      return `<div class="tri${ok?" ok":""}${cur?" cur":""}" style="--c:${colorOf(t.m)}"><input type="checkbox" data-tr="${t.id}" ${ok?"checked":""} aria-label="${esc(t.a)}">
+        <div style="min-width:0"><div class="tri-t">${esc(t.a)}${cur?` <span class="aqui">você está aqui</span>`:""}</div>
+        <div class="small muted"><span class="chip"><span class="dot" style="--c:${colorOf(t.m)}"></span>${esc(nomeOf(t.m))}</span> ${t.q} quest${t.q===1?"ão":"ões"} esperada${t.q===1?"":"s"} · ~${t.h} h${ok?` · concluído em ${fmt(S.topicos.trilha[t.id])}`:""}</div>
+        <details><summary>Por que e como estudar</summary><p class="small" style="margin:6px 0 0"><b>Por que:</b> ${esc(t.por)}</p><p class="small" style="margin:4px 0 0"><b>Como estudar:</b> ${esc(t.como)}</p></details></div></div>`}).join("")}</div>`};
+  $("#tr-lista").innerHTML=grupo("U","URGENTE","Estude primeiro. Cobrem cerca de 46 das 60 questões.")+grupo("M","MÉDIO","Depois dos urgentes de cada matéria. Mais cerca de 11 questões.");
+  $("#tr-lista").querySelectorAll("input[data-tr]").forEach(cb=>cb.onchange=()=>{if(cb.checked)concluirTrilha(cb.dataset.tr,rTrilha);else{marcarTrilha(cb.dataset.tr,false);rTrilha()}});
+}
+
 function rEdital(){
   $("#subjects").innerHTML=MAT.map(m=>{const [f,t]=cobertura(m.id);
     return `<div class="panel subj" style="--c:var(${m.c});display:grid;gap:8px"><div class="spread"><h3>${esc(m.nome)}</h3><span class="num small muted">${f}/${t}</span></div><div class="bar" style="--c:var(${m.c})"><i style="width:${f/t*100}%"></i></div><div>${m.topicos.map((nome,i)=>{const id=topicId(m.id,i);const st=topicState(id);
